@@ -87,4 +87,7 @@ if [ $? -ne 0 ]; then
 	exit 86
 fi
 #---------------------------------
+mkdir /var/www/ca
+cp $OUTCRT /var/www/ca/
+
 logger -s -t $MYNAME End

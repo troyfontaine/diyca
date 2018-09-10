@@ -55,4 +55,7 @@ if [ $? -ne 0 ]; then
 fi
 rm -f $USER_CSR
 #-----------------------------------------------------------
+cp USER_OUT_CRT /etc/ssl/certs/
+cp USER_OUT_KEY_NAME /etc/ssl/private/
+
 echo $MYNAME: End
