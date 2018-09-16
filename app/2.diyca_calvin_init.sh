@@ -23,7 +23,7 @@ if [ $? -ne 0 ]; then
 fi
 #---------------------------------
 logger -s -t $MYNAME "Make calvin, a self-signed CA, ready for business"
-cd calvin
+cd ca
 if [ $? -ne 0 ]; then
 	logger -s -t $MYNAME "*** failed to cd to calvin"
 	exit 86

@@ -26,7 +26,6 @@ SESSION_EMAIL = "email"
 CFGFILE = "diyca_web.cfg"
 SIGNER_FOLDER = "dummy"
 ALLOWED_EXTENSIONS = set(["csr"])
-UNAME = os.uname()
 
 # Initialize Flask
 app = Flask(MYNAME,
@@ -41,25 +40,25 @@ def allowed_file(filename):
 		return False
 	return (filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS)
 
-# Create a web response from a rendered page that ensures no caching
 def ensure_no_caching(arg_rendered):
+	"""Disable caching"""
 	response = make_response(arg_rendered)
 	#response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
 	#response.headers["Pragma"] = "no-cache"
 	#response.headers["Expires"] = "0"
 	return response
 
-# Render a main_form from userid, email address, and status text
 def main_form_renderer(arg_userid, arg_email, arg_status_text):
+	"""Render the main login form"""
 	out_rendered = render_template("menu_form.html",
-									frm_uname = UNAME,
 									frm_userid = arg_userid,
 									frm_email = arg_email,
 									frm_status = arg_status_text)
 	return out_rendered
 
-# Build a response which will end the session and expire the session cookie
+
 def build_logout_response(arg_html_text):
+	"""Build a response which will end the session and expire the session cookie"""
 	out_response = make_response(arg_html_text)
 	out_response.set_cookie(SESSION_COOKIE_NAME, "", expires=0)
 	session.clear()
@@ -68,10 +67,9 @@ def build_logout_response(arg_html_text):
 #------------ Web Server Entry Points --------------------------------
 
 # Main entry point (/)
-# if in session, stay in session --> main_form
-# Else, present login form
 @app.route("/", methods=["GET"])
 def web_request_initial_contact():
+	"""Maintain session if logged in, if not then display login form"""
 	if SESSION_USERID in session:
 		userid = session[SESSION_USERID]
 		email = session[SESSION_EMAIL]
@@ -84,15 +82,14 @@ def web_request_initial_contact():
 	if app.debug:
 		app.logger.debug("web_request_initial_contact: Not currently in session")
 	rendered = render_template("login_form.html",
-									frm_uname = UNAME,
 									frm_userid = "",
 									frm_password = "",
 									frm_status = "")
 	return ensure_no_caching(rendered), 200
 
-# Process a web login form (userid, password)
 @app.route("/login", methods=["POST"])
 def web_request_login():
+	"""Process login request"""
 	userid = request.form["userid"]
 	if app.debug:
 		app.logger.debug("web_request_login: userid is {%s}", userid)
@@ -104,7 +101,6 @@ def web_request_login():
 		# User not found
 		app.logger.error("web_request_login: user {%s} NOT FOUND", userid)
 		rendered = render_template("login_form.html", 
-									frm_uname = UNAME,
 									frm_userid = userid,
 									frm_password = "",
 									frm_status = "* NO SUCH USER ID *")
@@ -116,7 +112,6 @@ def web_request_login():
 		#Invalid password
 		app.logger.error("web_request_login: user {%s} provided an INVALID PASSWORD", userid)
 		rendered = render_template("login_form.html", 
-									frm_uname = UNAME,
 									frm_userid = userid,
 									frm_password = email,
 									frm_status = "* INVALID PASSWORD *")
@@ -129,27 +124,25 @@ def web_request_login():
 	app.logger.info("web_request_login: user {%s} successfully logged in", userid)
 	return ensure_no_caching(rendered), 200
 
-# Process a web /gotoregister request from the Login form
 @app.route("/gotoregister", methods=["GET"])
 def web_request_goto_register():
-		rendered = render_template("register_form.html", 
-									frm_uname = UNAME,
-									frm_userid = "",
-									frm_email = "",
-									frm_password1 = "",
-									frm_password2 = "",
-									frm_status = "")
-		return ensure_no_caching(rendered), 200
+	"""Process a visit to gotoregister from the login form"""
+	rendered = render_template("register_form.html", 
+								frm_userid = "",
+								frm_email = "",
+								frm_password1 = "",
+								frm_password2 = "",
+								frm_status = "")
+	return ensure_no_caching(rendered), 200
 
-# Process a web register form
 @app.route("/register", methods=["POST"])
 def web_request_register():
+	"""Process a signup request"""
 	userid = request.form["userid"]
 	email = request.form["email"]
 	# Validate email address
 	if not util.verify_email_recipient(email):
 		rendered = render_template("register_form.html", 
-									frm_uname = UNAME,
 									frm_userid = userid,
 									frm_email = email,
 									frm_password1 = "",
@@ -171,7 +164,6 @@ def web_request_register():
 	# Failed, user already exists
 	app.logger.error("web_request_register: user {%s} already exists", userid)
 	rendered = render_template("register_form.html",
-								frm_uname = UNAME,
 								frm_userid = userid,
 								frm_email = email,
 								frm_password1 = "",
@@ -188,7 +180,6 @@ def web_request_selected():
 		# Session Timeout
 		app.logger.error("web_request_selected: session expired")
 		rendered = render_template("login_form.html", 
-									frm_uname = UNAME,
 									frm_userid = "",
 									frm_password = "",
 									frm_status = "* PREVIOUS SESSION EXPIRED *")
@@ -198,14 +189,12 @@ def web_request_selected():
 		app.logger.debug("web_request_selected: form with function {%s} received", function)
 	if function == "csr":
 		rendered = render_template("csr_form.html",
-								frm_uname = UNAME,
 								frm_userid = userid, 
 								frm_email = email,
 								frm_status = "")
 		return ensure_no_caching(rendered)
 	elif function == "chgpswd":
 		rendered = render_template("chgpswd_form.html",
-								frm_uname = UNAME,
 								frm_userid = userid, 
 								frm_email = email,
 								frm_status = "")
@@ -213,7 +202,6 @@ def web_request_selected():
 	elif function == "logout":
 		text = util.sprintf("User {%s} logged out", userid)
 		rendered = render_template("login_form.html", 
-									frm_uname = UNAME,
 									frm_userid = "",
 									frm_password = "",
 									frm_status = text)
@@ -230,6 +218,7 @@ def web_request_selected():
 
 @app.route("/change_password", methods=["POST"])
 def web_request_change_password():
+	"""Allow user to reset their password"""
 	if SESSION_USERID in session:
 		userid = session[SESSION_USERID]
 		email = session[SESSION_EMAIL]
@@ -237,7 +226,6 @@ def web_request_change_password():
 		# Session Timeout
 		app.logger.error("web_request_change_password: session expired")
 		rendered = render_template("login_form.html", 
-									frm_uname = UNAME,
 									frm_userid = "",
 									frm_password = "",
 									frm_status = "* PREVIOUS SESSION EXPIRED *")
@@ -259,7 +247,6 @@ def web_request_change_password():
 		#Invalid password
 		app.logger.error("web_request_change_password: user {%s} provided an INVALID PASSWORD", userid)
 		rendered = render_template("chgpswd_form.html", 
-									frm_uname = UNAME,
 									frm_userid = userid,
 									frm_password = email,
 									frm_status = "* INVALID PASSWORD *")
@@ -277,9 +264,9 @@ def web_request_change_password():
 	rendered = main_form_renderer(userid, email, "*** Password change FAILED ***")
 	return ensure_no_caching(rendered), 204
 
-# Sign an uploaded CSR file, yielding a CRT file
 @app.route("/signcsr", methods=["POST"])
 def web_request_sign_csr():
+	"""Sign an uploaded Certificate Signing Request to generate a certificate file"""
 	if SESSION_USERID in session:
 		userid = session[SESSION_USERID]
 		email = session[SESSION_EMAIL]
@@ -287,47 +274,56 @@ def web_request_sign_csr():
 		# Session Timeout
 		app.logger.error("web_request_sign_csr: session expired")
 		rendered = render_template("login_form.html", 
-									frm_uname = UNAME,
 									frm_userid = "",
 									frm_password = "",
 									frm_status = "* PREVIOUS SESSION EXPIRED *")
 		return ensure_no_caching(rendered), 200
+		
 	# Check for the impossible
 	if "file" not in request.files:
 		text = util.sprintf("web_request_sign_csr from user {%s}: 'file' missing from request.files", userid)
 		app.logger.error(text)
 		return text, 400
 	csr_file_obj = request.files["file"]
+	
+	# Check if there was no file passed from the form
 	if csr_file_obj.filename == "":
 		text = util.sprintf("web_request_sign_csr from user {%s}: csr_file_obj.filename is empty", userid)
 		app.logger.error(text)
 		return text, 400
+		
+	# Check if file passed was not of the correct type
 	if not allowed_file(csr_file_obj.filename):
 		app.logger.error("web_request_sign_csr from user {%s}: csr_file_obj.filename {%s} is not an allowed type", userid, csr_file_obj.filename)
 		wstr = util.sprintf("*** File extension of {%s} is invalid. Only 'csr' extensions are permitted. ***", csr_file_obj.filename)
 		rendered = render_template("csr_form.html",
-								frm_uname = UNAME,
 								frm_userid = userid, 
 								frm_email = email,
 								frm_status = wstr)
 		return ensure_no_caching(rendered), 200
-	# Save it
+
+	# Save the CSR
 	csr_filename = secure_filename(csr_file_obj.filename)
 	csr_filepath = os.path.join(SIGNER_FOLDER, csr_filename)
 	csr_file_obj.save(csr_filepath)
 	app.logger.info("File {%s} successfully uploaded for user {%s}", csr_filepath, userid)
-	# Sign file
+	
+	# Determine path to CSR file upload
 	crt_filename = csr_filename.rsplit(".", 1)[0] + ".crt"
 	crt_filepath = os.path.join(SIGNER_FOLDER, crt_filename)
+	
+	# Generate the certificate by checking if we're unable to do so?
 	if not signer.sign_csr(userid, csr_filepath, crt_filepath):
 		app.logger.error("web_request_sign_csr {%s} from user {%s}: invalid contents (CA sign failed)", csr_file_obj.filename, userid)
 		text = util.sprintf("*** Invalid CSR File Contents (%s) ***", csr_filename)
 		rendered = render_template("csr_form.html",
-								frm_uname = UNAME,
 								frm_userid = userid, 
 								frm_email = email,
 								frm_status = text)
+		# Return error message to form
 		return ensure_no_caching(rendered), 200
+	
+	# Generate debug output if enabled
 	if app.debug:
 		app.logger.debug("web_request_sign_csr CRT {%s} from user {%s}: CA sign successful", crt_filename, userid)
 	# Successful: CRT = signed(CSR)
@@ -336,8 +332,9 @@ def web_request_sign_csr():
 		os.remove(csr_filepath)
 	except Exception as e:
 		app.logger.error("Failed to remove CSR {%s} for user {%s}, reason: {%s}", csr_filepath, userid, repr(e))
-		# Do not alarm the user
-	# Download CRT file to user
+		# Do not alarm the user if we cannot remove the CSR
+		
+	# Provide the signed certificate download to the user
 	return send_file(crt_filepath, 
 						mimetype='application/pkix-cert',
 						attachment_filename=crt_filename,

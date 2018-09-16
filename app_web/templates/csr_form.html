@@ -19,7 +19,13 @@ function checkFile() {
 <div class=form>
 	<form id="submit_form" action="/signcsr" method="POST" enctype="multipart/form-data"
 			onSubmit="return checkFile()">
-	 	<p><input type="file" name="file">
+	 	<p><input type="file" name="file"></p>
+	 	<p>Select a signature type for signing the certificate<br >SHA1 is ideal for older switches and hardware that doesn't support SHA256 for signing</p>
+	 	<select required name="Signature Type">
+			<option value="" selected> </option>
+			<option value="sha">SHA1 (Insecure)</option>
+			<option value="sha256">SHA256 (Secure)</option>
+		</select> 
 		<br>
 		<br>
 		<br>

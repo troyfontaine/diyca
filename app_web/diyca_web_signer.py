@@ -7,10 +7,10 @@ import os
 from OpenSSL import crypto
 from flask import current_app as app
 
-CA_CRT_FILE = "../certs/diyca_calvin.crt"
-CA_KEY_FILE = "../calvin/private/diyca_calvin.key"
+CA_CRT_FILE = "../certs/diyca_ca.crt"
+CA_KEY_FILE = "../ca/private/diyca_ca.key"
 EXPIRY_PERIOD = 60*60*24*365*2   # 2 years
-DIGEST = "sha256"
+DIGEST = "sha256" #TODO: Have this fed in via variable
 
 #=================================================================
 # Retrieve the contents of a file and return it as a string

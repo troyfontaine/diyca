@@ -1,5 +1,5 @@
 """
-DIYCA - Admin Program
+DIYCA - Launcher
 """
 
 # Python imports
@@ -21,23 +21,25 @@ RESET_PASSWORD = "123456"
 # Initialize Flask
 app = Flask(MYNAME)
 
-#------------ Internal procedures ------------------------------------
 
-# Immediately shutdown this web server after closing the database
 def byebye():
+	"""Immediately shutdown this web server after closing the database"""
 	sys.exit(0)
 
-# Catch termination signals
+
 def signal_handler(arg_signal, arg_frame):
+	"""Catch termination signals"""
 	app.logger.info("signal_handler: Caught signal {%d}, exiting", arg_signal)
 	byebye()
 
-# Prompt for a response
+
 def prompt(arg_prompt_message):
+	"""Prompt for a response"""
 	return raw_input(arg_prompt_message)
 
-# Killer process based on web server's PID file contents: send a SIGTERM signal
+
 def killer():
+	"""Killer process based on web server's PID file contents: send a SIGTERM signal"""
 	try:
 		# Read PID file
 		pid_path = app.config["PID_PATH"]
@@ -95,7 +97,7 @@ def delete_user():
 	userid = get_user_id()
 	if userid == "":
 		return
-	text = util.sprintf("delete_user: Are you REALLY REALLY REALLY sure that you want to delete user {%s}? (y/Y=yes; anything else=no): ", userid)
+	text = util.sprintf("delete_user: Please confirm	that you want to delete user {%s}? (y/Y=yes; anything else=no): ", userid)
 	yesorno = prompt(text)
 	if yesorno == "Y" or yesorno == "y":
 		with app.app_context():
@@ -116,9 +118,9 @@ def delete_user():
 	else:
 		print("delete_user: Cancelled")
 
-#------------ Begin Launched Program ------------------------------------
 
 if __name__ == "__main__":
+	"""Launch Web Application """
 	nargs = len(sys.argv)
 	# Ensure that there are no arguments after python program name
 	if nargs != 1:
@@ -176,9 +178,3 @@ if __name__ == "__main__":
 		else:
 			print("*** Invalid selection ***")
 			
-
-
-		
-		
-
-

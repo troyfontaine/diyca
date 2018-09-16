@@ -10,5 +10,10 @@ This project requires certain software packages to function.  The current list o
 * sqlite3 (OS package)
 * flask (`pip` package)
 * dnspython (`pip` package)
+* libsasl2-dev (OS package)
+* python-dev (OS package)
+* libldap2-dev (OS package)
+* libssl-dev (OS package)
+* python-leap (`pip` package)
 
-The OS packages listed above may be available as source-but most Linux distributions will have the available via their included package managers.  Typically this would be via `apt` on Debian or Ubuntu (or others derived from Debian), `yum` or `dnf` on Red Hat Enterprise Linux/CentOS/Fedora (or other derived from RHEL) as some examples.
+The OS packages listed above may be available as source-but most Linux distributions will have them available via their included package managers.  Typically this would be via `apt` on Debian or Ubuntu (or others derived from Debian), `yum` or `dnf` on Red Hat Enterprise Linux/CentOS/Fedora (or other derived from RHEL) as some examples.

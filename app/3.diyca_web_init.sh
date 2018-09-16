@@ -5,9 +5,9 @@
 #---------------------------------
 MYNAME=`basename $0`
 HERE=`pwd`
-CA_CERT_CONFIG=$HERE/bin/diyca_calvin_cert.cfg
-CA_CERT_FILE=$HERE/certs/diyca_calvin.crt
-CA_KEY_NAME=$HERE/calvin/private/diyca_calvin.key
+CA_CERT_CONFIG=$HERE/bin/diyca_ca_cert.cfg
+CA_CERT_FILE=$HERE/certs/diyca_ca.crt
+CA_KEY_NAME=$HERE/calvin/private/diyca_ca.key
 USER_CERT_CONFIG=$HERE/bin/diyca_web_cert.cfg
 USER_OUT_KEY_NAME=$HERE/app_web/private/diyca_web.key
 USER_CSR=$HERE/signer/temp_web.csr
